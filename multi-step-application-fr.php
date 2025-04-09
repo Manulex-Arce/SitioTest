@@ -290,7 +290,7 @@
                 </li>
             </ul>
 
-            <form id="multiStepForm" action="process-multi-step-form.php" method="POST">
+            <form id="multiStepForm" action="process-multi-step-form-fr.php" method="POST">
                 <!-- Step 1: Previous Borrowing -->
                 <div class="form-step active" id="step1">
                     <h2>Avez-vous déjà emprunté chez nous?</h2>
@@ -595,14 +595,14 @@
             }
 
             const formData = new FormData(this);
-            fetch('process-multi-step-form.php', {
+            fetch('process-multi-step-form-fr.php', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    window.location.href = 'thank-you-fr.php';
+                    window.location.href = 'merci-fr.php';
                 } else {
                     alert('Une erreur est survenue lors de la soumission de votre demande. Veuillez réessayer.');
                 }
