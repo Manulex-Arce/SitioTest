@@ -266,60 +266,40 @@
                 </li>
                 <li class="step-item">
                     <div class="step-circle">2</div>
-                    <div class="step-title">Connexion</div>
-                </li>
-                <li class="step-item">
-                    <div class="step-circle">3</div>
                     <div class="step-title">Personnel</div>
                 </li>
                 <li class="step-item">
-                    <div class="step-circle">4</div>
+                    <div class="step-circle">3</div>
                     <div class="step-title">Adresse</div>
                 </li>
                 <li class="step-item">
-                    <div class="step-circle">5</div>
+                    <div class="step-circle">4</div>
                     <div class="step-title">Finance</div>
                 </li>
                 <li class="step-item">
-                    <div class="step-circle">6</div>
+                    <div class="step-circle">5</div>
                     <div class="step-title">Emploi</div>
                 </li>
                 <li class="step-item">
-                    <div class="step-circle">7</div>
+                    <div class="step-circle">6</div>
                     <div class="step-title">Révision</div>
                 </li>
             </ul>
 
             <form id="multiStepForm" action="process-multi-step-form-fr.php" method="POST">
-                <!-- Step 1: Previous Borrowing -->
+                <!-- Step 1: Email Collection -->
                 <div class="form-step active" id="step1">
-                    <h2>Avez-vous déjà emprunté chez nous?</h2>
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="previousBorrowing" id="previousBorrowingYes" value="yes" required>
-                            <label class="form-check-label" for="previousBorrowingYes">Oui</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="previousBorrowing" id="previousBorrowingNo" value="no" required>
-                            <label class="form-check-label" for="previousBorrowingNo">Non</label>
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-primary" onclick="nextStep(1)">Suivant</button>
-                </div>
-
-                <!-- Step 2: Social Connect -->
-                <div class="form-step" id="step2">
                     <div class="social-connect">
                         <h2>Veuillez nous laisser votre email afin que nous puissions vous contacter</h2>
                         <div class="mb-3">
                             <input type="email" class="form-control" id="socialEmail" name="socialEmail" placeholder="Entrez votre courriel">
                         </div>
                     </div>
-                    <button type="button" class="btn btn-primary" onclick="nextStep(2)">Commencer ></button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(1)">Commencer ></button>
                 </div>
 
-                <!-- Step 3: Personal Information -->
-                <div class="form-step" id="step3">
+                <!-- Step 2: Personal Information -->
+                <div class="form-step" id="step2">
                     <h2>Parlez-nous de vous</h2>
                     <div class="mb-3">
                         <label for="firstName" class="form-label">Prénom *</label>
@@ -361,12 +341,12 @@
                         </div>
                         <input type="hidden" id="loanAmount" name="loanAmount" required>
                     </div>
-                    <button type="button" class="btn btn-secondary" onclick="prevStep(3)">Précédent</button>
-                    <button type="button" class="btn btn-primary" onclick="nextStep(3)">Suivant</button>
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(2)">Précédent</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(2)">Suivant</button>
                 </div>
 
-                <!-- Step 4: Address Information -->
-                <div class="form-step" id="step4">
+                <!-- Step 3: Address Information -->
+                <div class="form-step" id="step3">
                     <h2>Quelle est votre adresse?</h2>
                     <div class="mb-3">
                         <label for="streetNumber" class="form-label">Numéro de rue *</label>
@@ -398,12 +378,12 @@
                         <label for="moveInDate" class="form-label">Date d'emménagement *</label>
                         <input type="date" class="form-control" id="moveInDate" name="moveInDate" required>
                     </div>
-                    <button type="button" class="btn btn-secondary" onclick="prevStep(4)">Précédent</button>
-                    <button type="button" class="btn btn-primary" onclick="nextStep(4)">Suivant</button>
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(3)">Précédent</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(3)">Suivant</button>
                 </div>
 
-                <!-- Step 5: Financial Information -->
-                <div class="form-step" id="step5">
+                <!-- Step 4: Financial Information -->
+                <div class="form-step" id="step4">
                     <h2>Maintenant, parlons sérieusement</h2>
                     <div class="mb-3">
                         <label for="residenceStatus" class="form-label">Votre statut d'habitation *</label>
@@ -433,12 +413,12 @@
                         <label for="otherLoans" class="form-label">Prêt pour meubles ou autre</label>
                         <input type="number" class="form-control" id="otherLoans" name="otherLoans">
                     </div>
-                    <button type="button" class="btn btn-secondary" onclick="prevStep(5)">Précédent</button>
-                    <button type="button" class="btn btn-primary" onclick="nextStep(5)">Suivant</button>
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(4)">Précédent</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(4)">Suivant</button>
                 </div>
 
-                <!-- Step 6: Employment Information -->
-                <div class="form-step" id="step6">
+                <!-- Step 5: Employment Information -->
+                <div class="form-step" id="step5">
                     <h2>Votre source de revenus</h2>
                     <div class="mb-3">
                         <label for="occupation" class="form-label">Profession *</label>
@@ -474,12 +454,12 @@
                         <label for="hireDate" class="form-label">Date d'embauche (approximative) *</label>
                         <input type="date" class="form-control" id="hireDate" name="hireDate" required>
                     </div>
-                    <button type="button" class="btn btn-secondary" onclick="prevStep(6)">Précédent</button>
-                    <button type="button" class="btn btn-primary" onclick="nextStep(6)">Suivant</button>
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(5)">Précédent</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(5)">Suivant</button>
                 </div>
 
-                <!-- Step 7: Review and Submit -->
-                <div class="form-step" id="step7">
+                <!-- Step 6: Review and Submit -->
+                <div class="form-step" id="step6">
                     <h2>Vérifiez vos informations</h2>
                     <div id="reviewContent"></div>
                     <div class="mb-3">
@@ -490,7 +470,7 @@
                             </label>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-secondary" onclick="prevStep(7)">Précédent</button>
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(6)">Précédent</button>
                     <button type="submit" class="btn btn-success">Soumettre la demande</button>
                 </div>
             </form>
@@ -500,7 +480,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let currentStep = 1;
-        const totalSteps = 7;
+        const totalSteps = 6;
 
         function updateProgress() {
             document.querySelectorAll('.step-item').forEach((item, index) => {
@@ -597,29 +577,12 @@
 
         // Form submission
         document.getElementById('multiStepForm').addEventListener('submit', function(e) {
-            e.preventDefault();
             if (!document.getElementById('termsAgreement').checked) {
+                e.preventDefault();
                 alert('Vous devez accepter les termes et conditions');
-                return;
+                return false;
             }
-
-            const formData = new FormData(this);
-            fetch('process-multi-step-form-fr.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.href = 'merci-fr.php';
-                } else {
-                    alert('Une erreur est survenue lors de la soumission de votre demande. Veuillez réessayer.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Une erreur est survenue lors de la soumission de votre demande. Veuillez réessayer.');
-            });
+            return true;
         });
     </script>
 

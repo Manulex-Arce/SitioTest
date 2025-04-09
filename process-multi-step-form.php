@@ -143,8 +143,54 @@ try {
     // Log received data
     logMessage("Received data: " . json_encode($_POST));
 
-    // Initialize errors array
-    $errors = [];
+    // Initialize response array
+    $response = array(
+        'success' => true,
+        'message' => '',
+        'missing_fields' => array()
+    );
+
+    // Required fields
+    $required_fields = array(
+        'socialEmail',
+        'firstName',
+        'lastName',
+        'dateOfBirth',
+        'language',
+        'phone',
+        'email',
+        'loanAmount',
+        'streetNumber',
+        'street',
+        'city',
+        'province',
+        'postalCode',
+        'moveInDate',
+        'residenceStatus',
+        'grossSalary',
+        'rentCost',
+        'utilitiesCost',
+        'occupation',
+        'companyName',
+        'supervisorName',
+        'supervisorPhone',
+        'payrollFrequency',
+        'hireDate'
+    );
+
+    // Check for missing required fields
+    foreach ($required_fields as $field) {
+        if (!isset($_POST[$field]) || empty($_POST[$field])) {
+            $response['success'] = false;
+            $response['missing_fields'][] = $field;
+        }
+    }
+
+    if (!$response['success']) {
+        $response['message'] = 'Required fields are missing';
+        echo json_encode($response);
+        exit;
+    }
 
     // Sanitize and validate each field
     $sanitizedData = [];
@@ -153,40 +199,58 @@ try {
     if (!empty($_POST['firstName'])) {
         $sanitizedData['firstName'] = sanitizeInput($_POST['firstName']);
         if (strlen($sanitizedData['firstName']) < 2) {
-            $errors['firstName'] = 'First name must be at least 2 characters long';
+            $response['success'] = false;
+            $response['message'] = 'First name must be at least 2 characters long';
+            echo json_encode($response);
+            exit();
         }
     }
 
     if (!empty($_POST['lastName'])) {
         $sanitizedData['lastName'] = sanitizeInput($_POST['lastName']);
         if (strlen($sanitizedData['lastName']) < 2) {
-            $errors['lastName'] = 'Last name must be at least 2 characters long';
+            $response['success'] = false;
+            $response['message'] = 'Last name must be at least 2 characters long';
+            echo json_encode($response);
+            exit();
         }
     }
 
     if (!empty($_POST['email'])) {
         $sanitizedData['email'] = sanitizeInput($_POST['email']);
         if (!validateEmail($sanitizedData['email'])) {
-            $errors['email'] = 'Invalid email format';
+            $response['success'] = false;
+            $response['message'] = 'Invalid email format';
+            echo json_encode($response);
+            exit();
         }
     }
 
     if (!empty($_POST['phone'])) {
         $sanitizedData['phone'] = sanitizeInput($_POST['phone']);
         if (!validatePhone($sanitizedData['phone'])) {
-            $errors['phone'] = 'Invalid phone number format';
+            $response['success'] = false;
+            $response['message'] = 'Invalid phone number format';
+            echo json_encode($response);
+            exit();
         }
     }
 
     if (!empty($_POST['dateOfBirth'])) {
         if (!validateDate($_POST['dateOfBirth'])) {
-            $errors['dateOfBirth'] = 'Invalid date format';
+            $response['success'] = false;
+            $response['message'] = 'Invalid date format';
+            echo json_encode($response);
+            exit();
         } else {
             $dob = new DateTime($_POST['dateOfBirth']);
             $today = new DateTime();
             $age = $dob->diff($today)->y;
             if ($age < 18) {
-                $errors['dateOfBirth'] = 'You must be at least 18 years old';
+                $response['success'] = false;
+                $response['message'] = 'You must be at least 18 years old';
+                echo json_encode($response);
+                exit();
             }
             $sanitizedData['dateOfBirth'] = $_POST['dateOfBirth'];
         }
@@ -196,7 +260,10 @@ try {
     if (!empty($_POST['postalCode'])) {
         $sanitizedData['postalCode'] = strtoupper(sanitizeInput($_POST['postalCode']));
         if (!validatePostalCode($sanitizedData['postalCode'])) {
-            $errors['postalCode'] = 'Invalid postal code format';
+            $response['success'] = false;
+            $response['message'] = 'Invalid postal code format';
+            echo json_encode($response);
+            exit();
         }
     }
 
@@ -204,45 +271,21 @@ try {
     if (!empty($_POST['grossSalary'])) {
         $sanitizedData['grossSalary'] = filter_var($_POST['grossSalary'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
         if (!is_numeric($sanitizedData['grossSalary']) || $sanitizedData['grossSalary'] <= 0) {
-            $errors['grossSalary'] = 'Invalid salary amount';
+            $response['success'] = false;
+            $response['message'] = 'Invalid salary amount';
+            echo json_encode($response);
+            exit();
         }
     }
 
     if (!empty($_POST['loanAmount'])) {
         $sanitizedData['loanAmount'] = filter_var($_POST['loanAmount'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
         if (!validateAmount($sanitizedData['loanAmount'])) {
-            $errors['loanAmount'] = 'Invalid loan amount';
+            $response['success'] = false;
+            $response['message'] = 'Invalid loan amount';
+            echo json_encode($response);
+            exit();
         }
-    }
-
-    // Required fields validation
-    $required_fields = [
-        'firstName', 'lastName', 'dateOfBirth', 'language', 'phone', 'email',
-        'streetNumber', 'street', 'city', 'province', 'postalCode', 'moveInDate',
-        'residenceStatus', 'grossSalary', 'rentCost', 'utilitiesCost',
-        'occupation', 'companyName', 'supervisorName', 'supervisorPhone',
-        'payrollFrequency', 'hireDate', 'loanAmount', 'previousBorrowing'
-    ];
-
-    foreach ($required_fields as $field) {
-        if (empty($_POST[$field])) {
-            $errors[$field] = "Field $field is required";
-        } else if (!isset($sanitizedData[$field])) {
-            // If not already sanitized above, apply basic sanitization
-            $sanitizedData[$field] = sanitizeInput($_POST[$field]);
-        }
-    }
-
-    // If there are validation errors, return them
-    if (!empty($errors)) {
-        logMessage("Validation errors: " . json_encode($errors));
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Validation errors',
-            'errors' => $errors
-        ]);
-        exit();
     }
 
     // Send email notification with sanitized data
@@ -250,23 +293,21 @@ try {
 
     if ($email_sent) {
         logMessage("Email sent successfully");
-        echo json_encode([
-            'success' => true,
-            'message' => 'Application submitted successfully'
-        ]);
+        $response['message'] = 'Application submitted successfully';
+        echo json_encode($response);
+        if ($response['success']) {
+            header('Location: thank-you.php');
+            exit();
+        }
     } else {
         logMessage("Failed to send email");
-        echo json_encode([
-            'success' => false,
-            'message' => 'Error sending email notification'
-        ]);
+        $response['message'] = 'Error sending email notification';
+        echo json_encode($response);
     }
 } catch (Exception $e) {
     logMessage("Error: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'An error occurred while processing your request'
-    ]);
+    $response['success'] = false;
+    $response['message'] = 'An error occurred while processing your request';
+    echo json_encode($response);
 }
 ?> 

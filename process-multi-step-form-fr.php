@@ -93,7 +93,6 @@ function sendEmailNotification($data) {
     
     $message .= "<strong>Détails du prêt:</strong><br>";
     $message .= "Montant demandé: $" . $data['loanAmount'] . "<br>";
-    $message .= "Emprunt précédent: " . $data['previousBorrowing'] . "<br>";
     
     $headers = 'MIME-Version: 1.0' . "\r\n";
     $headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
@@ -107,30 +106,53 @@ try {
     // Log received data
     logMessage("Received data: " . json_encode($_POST));
 
-    // Required fields validation
-    $required_fields = [
-        'firstName', 'lastName', 'dateOfBirth', 'language', 'phone', 'email',
-        'streetNumber', 'street', 'city', 'province', 'postalCode', 'moveInDate',
-        'residenceStatus', 'grossSalary', 'rentCost', 'utilitiesCost',
-        'occupation', 'companyName', 'supervisorName', 'supervisorPhone',
-        'payrollFrequency', 'hireDate', 'loanAmount', 'previousBorrowing'
-    ];
+    // Initialize response array
+    $response = array(
+        'success' => true,
+        'message' => '',
+        'missing_fields' => array()
+    );
 
-    $missing_fields = [];
+    // Required fields
+    $required_fields = array(
+        'socialEmail',
+        'firstName',
+        'lastName',
+        'dateOfBirth',
+        'language',
+        'phone',
+        'email',
+        'loanAmount',
+        'streetNumber',
+        'street',
+        'city',
+        'province',
+        'postalCode',
+        'moveInDate',
+        'residenceStatus',
+        'grossSalary',
+        'rentCost',
+        'utilitiesCost',
+        'occupation',
+        'companyName',
+        'supervisorName',
+        'supervisorPhone',
+        'payrollFrequency',
+        'hireDate'
+    );
+
+    // Check for missing required fields
     foreach ($required_fields as $field) {
-        if (empty($_POST[$field])) {
-            $missing_fields[] = $field;
+        if (!isset($_POST[$field]) || empty($_POST[$field])) {
+            $response['success'] = false;
+            $response['missing_fields'][] = $field;
         }
     }
 
-    if (!empty($missing_fields)) {
-        logMessage("Missing required fields: " . implode(', ', $missing_fields));
-        echo json_encode([
-            'success' => false,
-            'message' => 'Champs obligatoires manquants',
-            'missing_fields' => $missing_fields
-        ]);
-        exit();
+    if (!$response['success']) {
+        $response['message'] = 'Champs obligatoires manquants';
+        echo json_encode($response);
+        exit;
     }
 
     // Send email notification
@@ -138,23 +160,18 @@ try {
 
     if ($email_sent) {
         logMessage("Email sent successfully");
-        echo json_encode([
-            'success' => true,
-            'message' => 'Demande soumise avec succès'
-        ]);
+        // If everything is successful, redirect to thank you page
+        header('Location: merci-fr.php');
+        exit;
     } else {
         logMessage("Failed to send email");
-        echo json_encode([
-            'success' => false,
-            'message' => 'Erreur lors de l\'envoi de la notification par courriel'
-        ]);
+        $response['message'] = 'Erreur lors de l\'envoi de la notification par courriel';
+        echo json_encode($response);
     }
 } catch (Exception $e) {
     logMessage("Error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Une erreur est survenue lors du traitement de votre demande'
-    ]);
+    $response['message'] = 'Une erreur est survenue lors du traitement de votre demande';
+    echo json_encode($response);
 }
 ?> 
