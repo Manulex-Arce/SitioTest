@@ -223,13 +223,11 @@
             <a href="https://www.expresscash.ca/#loan-example" class="navigation-link w-nav-link">Loan Example</a>
             <a href="https://applications.expresscash.ca/EN" class="navigation-link w-nav-link">Renew A Loan</a>
             <a href="contact" class="navigation-link w-nav-link">Contact Us</a>
-            <a href="Formtest.php" class="navigation-link w-nav-link">FormTest</a>
-            <a href="multi-step-application.php" class="navigation-link w-nav-link">multistepForm-Test</a>
-            <a data-w-id="b8bd90a7-6458-5981-5f7d-df7f112275f2" href="#" class="button-2 w-button">Apply Now</a>
+            <a data-w-id="b8bd90a7-6458-5981-5f7d-df7f112275f2" href="multi-step-application.php" class="button-2 w-button">Apply Now</a>
           </nav>
         </div>
         <div class="div-block-2">
-          <a data-w-id="b8bd90a7-6458-5981-5f7d-df7f112275f7" href="https://applications.expresscash.ca/EN" class="button w-button">APPLY NOW</a>
+          <a data-w-id="b8bd90a7-6458-5981-5f7d-df7f112275f7" href="multi-step-application.php" class="button w-button">APPLY NOW</a>
           <a href="multi-step-application-fr.php" class="link">FR</a>
         </div>
       </div>
@@ -238,17 +236,25 @@
     <div class="form-section">
         <div class="form-container">
             <div class="intro-section">
-                <h1>Get a quick personalized loan quote</h1>
-                <p>Just answer a few simple questions and we'll suggest a solution that meets your borrowing needs.</p>
+                <h1>Loan request in just 2 minutes.</h1>
+                <p>Before starting your application, you must meet the following criteria.</p>
                 
                 <div class="requirements-section">
                     <div class="requirement-item">
                         <i class="fas fa-user-check requirement-icon"></i>
-                        <span>You must be 18 years old and over</span>
+                        <span>You must be 18 years or older</span>
                     </div>
                     <div class="requirement-item">
                         <i class="fas fa-map-marker-alt requirement-icon"></i>
                         <span>You must be a Canadian resident</span>
+                    </div>
+                    <div class="requirement-item">
+                        <i class="fas fa-dollar-sign requirement-icon"></i>
+                        <span>You must have a stable income</span>
+                    </div>
+                    <div class="requirement-item">
+                        <i class="fas fa-ban requirement-icon"></i>
+                        <span>You must not be bankrupt</span>
                     </div>
                 </div>
             </div>

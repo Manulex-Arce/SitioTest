@@ -222,12 +222,11 @@
             <a href="https://www.expresscash.ca/home-fr#loan-example" class="navigation-link w-nav-link">Exemple De Prêt</a>
             <a href="https://applications.expresscash.ca/" class="navigation-link w-nav-link">Renouvellement</a>
             <a href="https://www.expresscash.ca/contact-fr" class="navigation-link w-nav-link">Contactez-Nous</a>
-            <a href="multi-step-application-fr.php" class="navigation-link w-nav-link">multistepForm-Test-FR</a>
-            <a href="#" class="button-2 w-button">Apply Now</a>
+            <a href="multi-step-application-fr.php" class="button-2 w-button">Apply Now</a>
           </nav>
         </div>
         <div class="div-block-3">
-          <a data-w-id="958dbba7-459e-24f8-7885-3309522aac41" href="https://applications.expresscash.ca/" class="button w-button">Appliquer Maintenant</a>
+          <a data-w-id="958dbba7-459e-24f8-7885-3309522aac41" href="multi-step-application-fr.php" class="button w-button">Appliquer Maintenant</a>
           <a href="multi-step-application.php" class="link">EN</a>
         </div>
       </div>
@@ -237,8 +236,8 @@
     <div class="form-section">
         <div class="form-container">
             <div class="intro-section">
-                <h1>Obtenez une estimation rapide de votre prêt</h1>
-                <p>Répondez à quelques questions simples et nous vous suggérerons une solution adaptée à vos besoins.</p>
+                <h1>Demande de prêt en seulement 2 minutes.</h1>
+                <p>Avant de commencer votre demande, vous devez répondre aux critères suivants.</p>
                 
                 <div class="requirements-section">
                     <div class="requirement-item">
@@ -248,6 +247,14 @@
                     <div class="requirement-item">
                         <i class="fas fa-map-marker-alt requirement-icon"></i>
                         <span>Vous devez être résident canadien</span>
+                    </div>
+                    <div class="requirement-item">
+                        <i class="fas fa-dollar-sign requirement-icon"></i>
+                        <span>Vous devez avoir un revenu stable</span>
+                    </div>
+                    <div class="requirement-item">
+                        <i class="fas fa-ban requirement-icon"></i>
+                        <span>Vous ne devez pas être en faillite</span>
                     </div>
                 </div>
             </div>
