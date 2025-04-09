@@ -1,0 +1,318 @@
+<?php
+
+use Cleantalk\Common\Err;
+use Cleantalk\Common\File;
+use Cleantalk\Variables\Post;
+use Cleantalk\ApbctUni\Cron;
+
+require_once 'common.php';
+
+function install( $files, $api_key, $cms, $exclusions ){
+    if( $files ){
+        $tmp = array();
+        foreach ( $files as $file_to_mod ){
+
+            // Check for absolute paths
+            if(
+                preg_match( '/^[\/\\\\].*/', $file_to_mod) || // Root for *nix systems
+                preg_match( '/^[A-Za-z]:\/.*/', $file_to_mod)     // Root for windows systems
+            ){
+                Err::add( 'File paths should be relative' );
+                break;
+            }
+
+            // Check for .. upper directory access
+            if(
+                preg_match( '/^\.\.[\/\\\\].*/', $file_to_mod) // Access to upper levels
+            ){
+                Err::add( 'Script for modification should be in the current folder or lower. You can not access upper leveled folders.' );
+                break;
+            }
+
+            $file = CLEANTALK_SITE_ROOT . trim( $file_to_mod );
+            if( file_exists($file) )
+                $tmp[] = $file;
+        }
+        $files = $tmp;
+    }
+
+	foreach ($files as $file){
+
+		$file_content = file_get_contents( $file );
+		$php_open_tags  = preg_match_all("/(<\?)/", $file_content);
+		$php_close_tags = preg_match_all("/(\?>)/", $file_content);
+		$first_php_start = strpos($file_content, '<?');
+        $contains_namespace_declaration = strpos($file_content, 'namespace');
+        $contains_declare_declaration = strpos($file_content, 'declare');
+
+		// Adding <?php to the start if it's not there
+		if($first_php_start !== 0)
+			File::inject__code($file, "<?php\n?>\n", 'start');
+
+		if( ! Err::check() ){
+
+			// Adding ? > to the end if it's not there
+			if($php_open_tags <= $php_close_tags)
+				File::inject__code($file, "\n<?php\n", 'end');
+
+			if( ! Err::check() ){
+
+                if( $contains_namespace_declaration !== false ) {
+                    $needle = 'namespace\s?[a-zA-Z_\\x80-\\xff\\x5c][a-zA-Z0-9\\x80-\\xff\\x5c]*\s*;';
+                } elseif ( $contains_declare_declaration !== false ) {
+                    $needle = 'declare\s*\({1}.*\){1};';
+                } else {
+                    $needle = '(<\?php)|(<\?)';
+                }
+
+                // Addition to the top of the script
+                File::inject__code(
+                    $file,
+                    "\trequire_once( '" . CLEANTALK_SITE_ROOT . "cleantalk/cleantalk.php');",
+                    $needle,
+                    'top_code'
+                );
+
+				if( ! Err::check() ){
+
+					// Addition to index.php Bottom (JavaScript test)
+					File::inject__code(
+						$file,
+						"\t\nif(ob_get_contents()){\nob_end_flush();\n}\n"
+						."\tif(isset(\$_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower(\$_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'){\n"
+						."\t\tdie();\n"
+						."\t}",
+						'end',
+						'bottom_code'
+					);
+
+				}
+			}
+		}
+	}
+
+	// Clean config
+	if( ! Err::check() )
+		uninstall();
+
+	// Install settings in cofig if everything is ok
+	if( ! Err::check() )
+		install_config( $files, $api_key, $cms, $exclusions );
+
+	// Set cron tasks
+	if( ! Err::check() )
+		install_cron();
+}
+
+function install_config( $modified_files, $api_key, $cms, $exclusions ){
+
+    $path_to_config = CLEANTALK_ROOT . 'config.php';
+    $apbct_salt = str_pad(rand(0, getrandmax()), 6, '0').str_pad(rand(0, getrandmax()), 6, '0');
+    // Attention. Backwards order because inserting it step by step
+
+    $pass = 'NO PASS';
+    $uni_email = '';
+
+    if( Post::get( 'admin_password' ) ) {
+        $pass = trim( Post::get( 'admin_password' ) );
+        File::inject__variable( $path_to_config, 'password', hash( 'sha256', trim( Post::get( 'admin_password' ) ) ) );
+    }
+
+    if( Post::get( 'email' ) ) {
+        $uni_email = trim( Post::get( 'email' ) );
+        File::inject__variable( $path_to_config, 'uni_email', trim( Post::get( 'email' ) ) );
+    }
+
+    if( Post::get( 'user_token' ) )
+        File::inject__variable( $path_to_config, 'user_token', trim( Post::get( 'user_token' ) ) );
+    if( Post::get( 'account_name_ob' ) )
+        File::inject__variable( $path_to_config, 'account_name_ob', trim( Post::get( 'account_name_ob' ) ) );
+
+    if($uni_email) {
+        $host = $_SERVER['HTTP_HOST'] ?: 'Your Site';
+        $to = $uni_email;
+        $login = $uni_email;
+        $subject = 'Universal Anti-Spam Plugin settings for ' . $host;
+        $message = "Hi,<br><br>
+                Your credentials to get access to settings of Universal Anti-Spam Plugin by CleanTalk are bellow,<br><br>
+                Login: $login<br>
+                Access key: $api_key <br>
+                Password: $pass <br>
+                Settings URL: https://$host/cleantalk/settings.php <br>
+                Dashboard: https://cleantalk.org/my/?cp_mode=antispam <br><br>
+                --<br>
+                With regards,<br>
+                CleanTalk team.";
+
+        $headers  = 'MIME-Version: 1.0' . "\r\n";
+        $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+
+        // Sending email
+        mail(
+            $to,
+            $subject,
+            $message,
+            $headers
+        );
+    }
+
+    File::inject__variable( $path_to_config, 'salt', $apbct_salt );
+    File::inject__variable( $path_to_config, 'security', hash( 'sha256', '0(o_O)0' . $apbct_salt ) );
+    File::inject__variable( $path_to_config, 'modified_files', $modified_files, false, true );
+    if( $exclusions )
+        File::inject__variable( $path_to_config, 'exclusions', $exclusions, false, true );
+    File::inject__variable( $path_to_config, 'apikey', $api_key );
+    File::inject__variable( $path_to_config, 'exclusion_key', md5($api_key) );
+    File::inject__variable( $path_to_config, 'detected_cms', $cms );
+    File::inject__variable( $path_to_config, 'is_installed', true );
+}
+
+function install_cron(){
+    /** @var \Cleantalk\Custom\Cron\Cron $cron_class */
+    $cron_class = \Cleantalk\Common\Mloader\Mloader::get('Cron');
+    $cron = new $cron_class();
+    $cron->checkCronData();
+}
+
+function uninstall( $files = array() ){
+
+	global $modified_files;
+
+	// Clean files from config.php
+	$files = empty($files) && isset($modified_files)
+		? $modified_files
+		: $files;
+
+	$path_to_config = CLEANTALK_ROOT . 'config.php';
+	File::clean__variable( $path_to_config, 'security' );
+	File::clean__variable( $path_to_config, 'password' );
+	File::clean__variable( $path_to_config, 'salt' );
+	File::clean__variable( $path_to_config, 'apikey' );
+    File::clean__variable( $path_to_config, 'exclusion_key' );
+	File::clean__variable( $path_to_config, 'uni_email' );
+	File::clean__variable( $path_to_config, 'user_token' );
+	File::clean__variable( $path_to_config, 'account_name_ob' );
+	File::clean__variable( $path_to_config, 'detected_cms' );
+	File::clean__variable( $path_to_config, 'admin_password' );
+	File::clean__variable( $path_to_config, 'modified_files' );
+	File::clean__variable( $path_to_config, 'exclusions' );
+	File::clean__variable( $path_to_config, 'is_installed' );
+
+	// Restore deafult settings
+	File::replace__variable( $path_to_config, 'sfw_last_update', 0 );
+	File::replace__variable( $path_to_config, 'sfw_last_logs_send', 0 );
+	File::replace__variable( $path_to_config, 'sfw_entries', 0 );
+    File::replace__variable( $path_to_config, 'antispam_activity_status', true );
+	File::replace__variable( $path_to_config, 'registrations_test', true );
+	File::replace__variable( $path_to_config, 'general_postdata_test', false );
+	File::replace__variable( $path_to_config, 'spam_firewall', true );
+    File::replace__variable( $path_to_config, 'general_post_exclusion_usage', false );
+
+	// Deleting cron tasks
+	File::replace__variable( CLEANTALK_CRON_FILE, 'tasks', array() );
+    File::replace__variable( CLEANTALK_CRON_FILE, 'cleantalk_cron', array(), true );
+    File::replace__variable( CLEANTALK_CRON_FILE, 'cleantalk_cron_last_start', 0 );
+    File::replace__variable( CLEANTALK_CRON_FILE, 'cleantalk_cron_pid', 0 );
+
+	// Deleting SFW nets
+	File::clean__variable( CLEANTALK_ROOT . 'data' . DS . 'sfw_nets.php', 'sfw_nets' );
+
+	if(isset($files)){
+		foreach ( $files as $file ){
+			File::clean__tag( $file, 'top_code' );
+			File::clean__tag( $file, 'bottom_code' );
+		}
+	}
+
+	return ! Err::check();
+}
+
+function detect_cms( $path_to_index, $out = 'Unknown' ){
+
+	if( is_file($path_to_index) ){
+
+		// Detecting CMS
+		$index_file = file_get_contents( $path_to_index );
+
+		//X-Cart 4
+		if (preg_match('/(xcart_4_.*?)/', $index_file))
+			$out = 'X-Cart 4';
+		//osTicket
+		if (preg_match('/osticket/i', $index_file))
+			$out = 'osTicket';
+		// PrestaShop
+		if (preg_match('/(PrestaShop.*?)/', $index_file))
+			$out = 'PrestaShop';
+		// Question2Answer
+		if (preg_match('/(Question2Answer.*?)/', $index_file))
+			$out = 'Question2Answer';
+		// FormTools
+		if (preg_match('/(use\sFormTools.*?)/', $index_file))
+			$out = 'FormTools';
+		// SimplaCMS
+		if (preg_match('/(Simpla CMS.*?)/', $index_file))
+			$out = 'Simpla CMS';
+        // phpBB
+        if (preg_match('/(phpBB.*?)/', $index_file))
+            $out = 'phpBB';
+        if ( strpos( $index_file, '/wa-config/' ) && strpos( $index_file, 'waSystem::getInstance' ) )
+            $out = 'ShopScript';
+        if (preg_match('/(DATALIFEENGINE.*?)/', $index_file))
+            $out = 'DLE';
+        // CsCart
+        if (preg_match('/(Kalynyak.*?)/', $index_file))
+            $out = 'cscart';
+        //moodle moodle
+        if ( preg_match('/(moodle.*?)/', $index_file) ) {
+            $out = 'moodle';
+        }
+    }
+
+	return $out;
+}
+
+/**
+ * Checking for a new version of the plugin and and showing the corresponding message
+ */
+function apbct__plugin_update_message() {
+    global $latest_version;
+
+    if (!$latest_version) {
+        $latest_version = APBCT_VERSION;
+    }
+
+    if( version_compare( APBCT_VERSION, $latest_version ) === -1 ){
+        echo '<p class="text-center">There is a newer version. Update to the latest ' . $latest_version . '</p>';
+        echo '<p class="text-center"><button id="btn-update" form="none" class="btn btn-setup" value="">Update</button><img class="ajax-preloader" src="img/preloader.gif"></p>';
+    }elseif( version_compare( APBCT_VERSION, $latest_version ) === 1 ){
+        echo '<p class="text-center">You are using a higher version than the latest version '. APBCT_VERSION . '</p>';
+    }else{
+        echo '<p class="text-center">You are using the latest version '. APBCT_VERSION . '</p>';
+    }
+}
+
+/**
+ * Print Block with CSCart Js Snippet
+ */
+function apbct__cscart_js_snippet() {
+    global $apikey, $apbct_salt, $detected_cms;
+    
+    // Only for CsCart
+    if ($detected_cms != 'cscart') return;
+    
+    $apbct_checkjs_hash = apbct_checkjs_hash($apikey, $apbct_salt);
+    ?>
+    
+    <div class="highlight">
+        <h4>Add this code to all pages of the site (use the basic template). Detailed instruction is <a href="https://blog.cleantalk.org/protecting-cs-cart-website-from-spam/">here</a></h4>
+        <pre tabindex="0" class="chroma">
+            <code class="language-html" data-lang="html">
+                &lt;script&gt;var apbct_checkjs_val="<?= $apbct_checkjs_hash; ?>";&lt;/script&gt;
+                &lt;script src="/cleantalk/js/ct_js_test.js"&gt;&lt;/script&gt;
+                &lt;script src="/cleantalk/js/ct_js_test.js"&gt;&lt;/script&gt;
+            </code>
+        </pre>
+    </div>
+
+    <?php
+}
