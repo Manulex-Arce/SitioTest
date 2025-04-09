@@ -1,10 +1,13 @@
 <?php
-// Enable error reporting
+// Buffer output to prevent header issues
+ob_start();
+
+// Enable error reporting but don't display errors
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 
 // CleanTalk setup
-require_once('/home/expressc/public_html/cleantalk/cleantalk.php');
+@require_once('/home/expressc/public_html/cleantalk/cleantalk.php');
 
 // Log file setup
 $logFile = 'form_processing.log';
@@ -119,8 +122,16 @@ function validatePhone($phone) {
 }
 
 function validateDate($date) {
-    $d = DateTime::createFromFormat('Y-m-d', $date);
-    return $d && $d->format('Y-m-d') === $date;
+    if (empty($date)) {
+        return false;
+    }
+    
+    try {
+        $d = new DateTime($date);
+        return $d && $d->format('Y-m-d') === $date;
+    } catch (Exception $e) {
+        return false;
+    }
 }
 
 function validatePostalCode($postalCode) {
@@ -188,6 +199,7 @@ try {
 
     if (!$response['success']) {
         $response['message'] = 'Required fields are missing';
+        ob_end_clean();
         echo json_encode($response);
         exit;
     }
@@ -201,6 +213,7 @@ try {
         if (strlen($sanitizedData['firstName']) < 2) {
             $response['success'] = false;
             $response['message'] = 'First name must be at least 2 characters long';
+            ob_end_clean();
             echo json_encode($response);
             exit();
         }
@@ -211,6 +224,7 @@ try {
         if (strlen($sanitizedData['lastName']) < 2) {
             $response['success'] = false;
             $response['message'] = 'Last name must be at least 2 characters long';
+            ob_end_clean();
             echo json_encode($response);
             exit();
         }
@@ -221,6 +235,7 @@ try {
         if (!validateEmail($sanitizedData['email'])) {
             $response['success'] = false;
             $response['message'] = 'Invalid email format';
+            ob_end_clean();
             echo json_encode($response);
             exit();
         }
@@ -231,6 +246,7 @@ try {
         if (!validatePhone($sanitizedData['phone'])) {
             $response['success'] = false;
             $response['message'] = 'Invalid phone number format';
+            ob_end_clean();
             echo json_encode($response);
             exit();
         }
@@ -240,19 +256,25 @@ try {
         if (!validateDate($_POST['dateOfBirth'])) {
             $response['success'] = false;
             $response['message'] = 'Invalid date format';
+            ob_end_clean();
             echo json_encode($response);
             exit();
         } else {
             $dob = new DateTime($_POST['dateOfBirth']);
             $today = new DateTime();
             $age = $dob->diff($today)->y;
+            
+            // Store the validated date
+            $sanitizedData['dateOfBirth'] = $_POST['dateOfBirth'];
+            
+            // Check age after storing the date
             if ($age < 18) {
                 $response['success'] = false;
                 $response['message'] = 'You must be at least 18 years old';
+                ob_end_clean();
                 echo json_encode($response);
                 exit();
             }
-            $sanitizedData['dateOfBirth'] = $_POST['dateOfBirth'];
         }
     }
 
@@ -262,6 +284,7 @@ try {
         if (!validatePostalCode($sanitizedData['postalCode'])) {
             $response['success'] = false;
             $response['message'] = 'Invalid postal code format';
+            ob_end_clean();
             echo json_encode($response);
             exit();
         }
@@ -273,6 +296,7 @@ try {
         if (!is_numeric($sanitizedData['grossSalary']) || $sanitizedData['grossSalary'] <= 0) {
             $response['success'] = false;
             $response['message'] = 'Invalid salary amount';
+            ob_end_clean();
             echo json_encode($response);
             exit();
         }
@@ -283,31 +307,40 @@ try {
         if (!validateAmount($sanitizedData['loanAmount'])) {
             $response['success'] = false;
             $response['message'] = 'Invalid loan amount';
+            ob_end_clean();
             echo json_encode($response);
             exit();
         }
     }
 
     // Send email notification with sanitized data
-    $email_sent = sendEmailNotification($sanitizedData);
+    $email_sent = sendEmailNotification($_POST); // Use $_POST instead of sanitizedData
 
     if ($email_sent) {
         logMessage("Email sent successfully");
-        $response['message'] = 'Application submitted successfully';
-        echo json_encode($response);
-        if ($response['success']) {
-            header('Location: thank-you.php');
-            exit();
+        ob_end_clean();
+        // Clear any previous output and send redirect headers
+        while (ob_get_level()) {
+            ob_end_clean();
         }
+        header("Location: thank-you.php");
+        exit();
     } else {
         logMessage("Failed to send email");
+        $response['success'] = false;
         $response['message'] = 'Error sending email notification';
+        ob_end_clean();
         echo json_encode($response);
+        exit();
     }
 } catch (Exception $e) {
     logMessage("Error: " . $e->getMessage());
     $response['success'] = false;
     $response['message'] = 'An error occurred while processing your request';
+    ob_end_clean();
     echo json_encode($response);
 }
+
+// Clean output buffer if we reach this point
+ob_end_clean();
 ?> 
