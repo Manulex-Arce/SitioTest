@@ -26,7 +26,7 @@
         .form-step h2 {
             color: #191c21;
             margin-bottom: 25px;
-            font-size: 24px;
+            font-size: 20px;
         }
         .progress {
             display: none;
@@ -236,7 +236,7 @@
     <div class="form-section">
         <div class="form-container">
             <div class="intro-section">
-                <h1>Loan request in just 2 minutes.</h1>
+                <h1>Loan request in just <br>2 minutes.</h1>
                 <p>Before starting your application, you must meet the following criteria.</p>
                 
                 <div class="requirements-section">
@@ -310,8 +310,7 @@
                 <!-- Step 2: Social Connect -->
                 <div class="form-step" id="step2">
                     <div class="social-connect">
-                        <h2>Save time and connect with us!</h2>
-                        <p>We don't post anything on your wall without your consent.</p>
+                        <h2>Please leave us your email so that we can contact you</h2>
                         <div class="mb-3">
                             <input type="email" class="form-control" id="socialEmail" name="socialEmail" placeholder="Enter your email">
                         </div>
