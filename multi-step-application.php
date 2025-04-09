@@ -551,6 +551,11 @@
             document.getElementById(`step${currentStep}`).classList.add('active');
             updateProgress();
 
+            // Hide intro section after step 1
+            if (current === 1) {
+                document.querySelector('.intro-section').style.display = 'none';
+            }
+
             if (currentStep === totalSteps) {
                 updateReviewContent();
             }
@@ -561,6 +566,11 @@
             currentStep = current - 1;
             document.getElementById(`step${currentStep}`).classList.add('active');
             updateProgress();
+
+            // Show intro section when going back to step 1
+            if (currentStep === 1) {
+                document.querySelector('.intro-section').style.display = 'block';
+            }
         }
 
         function updateReviewContent() {
