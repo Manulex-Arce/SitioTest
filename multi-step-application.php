@@ -23,6 +23,9 @@
         .form-step.active {
             display: block;
         }
+        .form-section{
+            padding: 0 !important;
+        }
         .form-step h2 {
             color: #191c21;
             margin-bottom: 25px;
@@ -255,6 +258,10 @@
                     <div class="requirement-item">
                         <i class="fas fa-ban requirement-icon"></i>
                         <span>You must not be bankrupt</span>
+                    </div>
+                    <div class="requirement-item">
+                        <i class="fas fa-ban requirement-icon"></i>
+                        <span>We don’t accept the Koho bank</span>
                     </div>
                 </div>
             </div>

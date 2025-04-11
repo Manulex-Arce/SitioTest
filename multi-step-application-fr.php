@@ -23,6 +23,9 @@
         .form-step.active {
             display: block;
         }
+        .form-section{
+            padding: 0 !important;
+        }
         .form-step h2 {
             color: #191c21;
             margin-bottom: 25px;
@@ -256,7 +259,12 @@
                         <i class="fas fa-ban requirement-icon"></i>
                         <span>Vous ne devez pas être en faillite</span>
                     </div>
+                    <div class="requirement-item">
+                        <i class="fas fa-ban requirement-icon"></i>
+                        <span>Nous n'acceptons pas la banque Koho</span>
+                    </div>
                 </div>
+                
             </div>
 
             <ul class="steps-indicator">
@@ -581,9 +589,42 @@
             const formData = new FormData(document.getElementById('multiStepForm'));
             let html = '<div class="card"><div class="card-body">';
             
+            // Créer un objet de traduction
+            const translations = {
+                'socialEmail': 'Courriel social',
+                'firstName': 'Prénom',
+                'lastName': 'Nom',
+                'dateOfBirth': 'Date de naissance',
+                'language': 'Langue',
+                'phone': 'Téléphone',
+                'email': 'Courriel',
+                'loanAmount': 'Montant du prêt',
+                'streetNumber': 'Numéro de rue',
+                'street': 'Rue',
+                'apt': 'Appartement',
+                'city': 'Ville',
+                'province': 'Province',
+                'postalCode': 'Code postal',
+                'moveInDate': 'Date d\'emménagement',
+                'residenceStatus': 'Statut de résidence',
+                'grossSalary': 'Salaire brut',
+                'rentCost': 'Coût du loyer',
+                'utilitiesCost': 'Coût des services publics',
+                'carLoan': 'Prêt automobile',
+                'otherLoans': 'Autres prêts',
+                'occupation': 'Profession',
+                'companyName': 'Nom de l\'entreprise',
+                'supervisorName': 'Nom du superviseur',
+                'supervisorPhone': 'Téléphone du superviseur',
+                'supervisorExtension': 'Extension',
+                'payrollFrequency': 'Fréquence de paie',
+                'hireDate': 'Date d\'embauche'
+            };
+            
             for (let [key, value] of formData.entries()) {
                 if (value) {
-                    html += `<p><strong>${key}:</strong> ${value}</p>`;
+                    const label = translations[key] || key;
+                    html += `<p><strong>${label}:</strong> ${value}</p>`;
                 }
             }
             
