@@ -261,7 +261,7 @@
                     </div>
                     <div class="requirement-item">
                         <i class="fas fa-ban requirement-icon"></i>
-                        <span>We don’t accept the Koho bank</span>
+                        <span>We don't accept the Koho bank</span>
                     </div>
                 </div>
             </div>
@@ -296,6 +296,21 @@
             <form id="multiStepForm" action="process-multi-step-form.php" method="POST">
                 <!-- Step 1: Email Collection -->
                 <div class="form-step active" id="step1">
+                    <div class="mb-4">
+                        <h2>Have you borrowed from us before?</h2>
+                        <div class="form-check mb-2" required>
+                            <input class="form-check-input" type="radio" name="previousLoan" id="previousLoanYes" value="Yes">
+                            <label class="form-check-label" for="previousLoanYes">
+                                Yes
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="previousLoan" id="previousLoanNo" value="No">
+                            <label class="form-check-label" for="previousLoanNo">
+                                No
+                            </label>
+                        </div>
+                    </div>
                     <div class="social-connect">
                         <h2>Please leave us your email so that we can contact you</h2>
                         <div class="mb-3">
@@ -517,6 +532,25 @@
             let isValid = true;
             const stepElement = document.getElementById(`step${step}`);
             const inputs = stepElement.querySelectorAll('input[required], select[required]');
+            
+            // Validate radio buttons for previous loan in step 1
+            if (step === 1) {
+                const previousLoanYes = document.getElementById('previousLoanYes');
+                const previousLoanNo = document.getElementById('previousLoanNo');
+                if (!previousLoanYes.checked && !previousLoanNo.checked) {
+                    isValid = false;
+                    if (!document.getElementById('previousLoanError')) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.id = 'previousLoanError';
+                        errorDiv.className = 'invalid-feedback d-block';
+                        errorDiv.textContent = 'Please select an option';
+                        previousLoanNo.parentElement.parentElement.appendChild(errorDiv);
+                    }
+                } else {
+                    const errorDiv = document.getElementById('previousLoanError');
+                    if (errorDiv) errorDiv.remove();
+                }
+            }
             
             inputs.forEach(input => {
                 if (!input.value) {
