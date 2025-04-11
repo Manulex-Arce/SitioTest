@@ -299,15 +299,15 @@
                 <div class="form-step active" id="step1">
                     <div class="mb-4">
                         <h2>Avez-vous déjà emprunté chez nous?</h2>
-                        <div class="form-check mb-2" required>
-                            <input class="form-check-input" type="radio" name="previousLoan" id="previousLoanYes" value="Oui">
-                            <label class="form-check-label" for="previousLoanYes">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="empruntPrecedent" id="empruntPrecedentOui" value="Oui">
+                            <label class="form-check-label" for="empruntPrecedentOui">
                                 Oui
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="previousLoan" id="previousLoanNo" value="Non">
-                            <label class="form-check-label" for="previousLoanNo">
+                            <input class="form-check-input" type="radio" name="empruntPrecedent" id="empruntPrecedentNon" value="Non">
+                            <label class="form-check-label" for="empruntPrecedentNon">
                                 Non
                             </label>
                         </div>
@@ -536,19 +536,19 @@
             
             // Validate radio buttons for previous loan in step 1
             if (step === 1) {
-                const previousLoanYes = document.getElementById('previousLoanYes');
-                const previousLoanNo = document.getElementById('previousLoanNo');
+                const previousLoanYes = document.getElementById('empruntPrecedentOui');
+                const previousLoanNo = document.getElementById('empruntPrecedentNon');
                 if (!previousLoanYes.checked && !previousLoanNo.checked) {
                     isValid = false;
-                    if (!document.getElementById('previousLoanError')) {
+                    if (!document.getElementById('empruntPrecedentError')) {
                         const errorDiv = document.createElement('div');
-                        errorDiv.id = 'previousLoanError';
+                        errorDiv.id = 'empruntPrecedentError';
                         errorDiv.className = 'invalid-feedback d-block';
                         errorDiv.textContent = 'Veuillez sélectionner une option';
                         previousLoanNo.parentElement.parentElement.appendChild(errorDiv);
                     }
                 } else {
-                    const errorDiv = document.getElementById('previousLoanError');
+                    const errorDiv = document.getElementById('empruntPrecedentError');
                     if (errorDiv) errorDiv.remove();
                 }
             }
@@ -623,8 +623,8 @@
             const formData = new FormData(document.getElementById('multiStepForm'));
             let html = '<div class="card"><div class="card-body">';
             
-            // Créer un objet de traduction
             const translations = {
+                'empruntPrecedent': 'Emprunt précédent',
                 'socialEmail': 'Courriel social',
                 'firstName': 'Prénom',
                 'lastName': 'Nom',

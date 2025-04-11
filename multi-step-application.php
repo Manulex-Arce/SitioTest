@@ -298,15 +298,15 @@
                 <div class="form-step active" id="step1">
                     <div class="mb-4">
                         <h2>Have you borrowed from us before?</h2>
-                        <div class="form-check mb-2" required>
-                            <input class="form-check-input" type="radio" name="previousLoan" id="previousLoanYes" value="Yes">
-                            <label class="form-check-label" for="previousLoanYes">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="previousBorrowing" id="previousBorrowingYes" value="Yes">
+                            <label class="form-check-label" for="previousBorrowingYes">
                                 Yes
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="previousLoan" id="previousLoanNo" value="No">
-                            <label class="form-check-label" for="previousLoanNo">
+                            <input class="form-check-input" type="radio" name="previousBorrowing" id="previousBorrowingNo" value="No">
+                            <label class="form-check-label" for="previousBorrowingNo">
                                 No
                             </label>
                         </div>
@@ -533,21 +533,21 @@
             const stepElement = document.getElementById(`step${step}`);
             const inputs = stepElement.querySelectorAll('input[required], select[required]');
             
-            // Validate radio buttons for previous loan in step 1
+            // Validate radio buttons for previous borrowing in step 1
             if (step === 1) {
-                const previousLoanYes = document.getElementById('previousLoanYes');
-                const previousLoanNo = document.getElementById('previousLoanNo');
-                if (!previousLoanYes.checked && !previousLoanNo.checked) {
+                const previousBorrowingYes = document.getElementById('previousBorrowingYes');
+                const previousBorrowingNo = document.getElementById('previousBorrowingNo');
+                if (!previousBorrowingYes.checked && !previousBorrowingNo.checked) {
                     isValid = false;
-                    if (!document.getElementById('previousLoanError')) {
+                    if (!document.getElementById('previousBorrowingError')) {
                         const errorDiv = document.createElement('div');
-                        errorDiv.id = 'previousLoanError';
+                        errorDiv.id = 'previousBorrowingError';
                         errorDiv.className = 'invalid-feedback d-block';
                         errorDiv.textContent = 'Please select an option';
-                        previousLoanNo.parentElement.parentElement.appendChild(errorDiv);
+                        previousBorrowingNo.parentElement.parentElement.appendChild(errorDiv);
                     }
                 } else {
-                    const errorDiv = document.getElementById('previousLoanError');
+                    const errorDiv = document.getElementById('previousBorrowingError');
                     if (errorDiv) errorDiv.remove();
                 }
             }
@@ -622,9 +622,42 @@
             const formData = new FormData(document.getElementById('multiStepForm'));
             let html = '<div class="card"><div class="card-body">';
             
+            const translations = {
+                'previousBorrowing': 'Previous Borrowing',
+                'socialEmail': 'Social Email',
+                'firstName': 'First Name',
+                'lastName': 'Last Name',
+                'dateOfBirth': 'Date of Birth',
+                'language': 'Language',
+                'phone': 'Phone Number',
+                'email': 'Email Address',
+                'loanAmount': 'Loan Amount',
+                'streetNumber': 'Street Number',
+                'street': 'Street Name',
+                'apt': 'Apartment',
+                'city': 'City',
+                'province': 'Province',
+                'postalCode': 'Postal Code',
+                'moveInDate': 'Move-in Date',
+                'residenceStatus': 'Residence Status',
+                'grossSalary': 'Gross Salary',
+                'rentCost': 'Rent Cost',
+                'utilitiesCost': 'Utilities Cost',
+                'carLoan': 'Car Loan',
+                'otherLoans': 'Other Loans',
+                'occupation': 'Occupation',
+                'companyName': 'Company Name',
+                'supervisorName': 'Supervisor Name',
+                'supervisorPhone': 'Supervisor Phone',
+                'supervisorExtension': 'Extension',
+                'payrollFrequency': 'Payroll Frequency',
+                'hireDate': 'Hire Date'
+            };
+            
             for (let [key, value] of formData.entries()) {
                 if (value) {
-                    html += `<p><strong>${key}:</strong> ${value}</p>`;
+                    const label = translations[key] || key;
+                    html += `<p><strong>${label}:</strong> ${value}</p>`;
                 }
             }
             
