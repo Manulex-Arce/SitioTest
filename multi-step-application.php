@@ -213,6 +213,13 @@
             color: #495057;
             margin-right: 10px;
         }
+        @media (max-width: 768px) {
+  .intro-section h1 {
+    margin-bottom: 20px;
+    font-size: 1.3em;
+  }
+}
+
     </style>
 </head>
 <body>

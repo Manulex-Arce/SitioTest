@@ -93,6 +93,7 @@ function sendEmailNotification($data) {
     
     $message .= "<strong>Détails du prêt:</strong><br>";
     $message .= "Montant demandé: $" . $data['loanAmount'] . "<br>";
+    $message .= "Emprunt précédent: " . $data['empruntPrecedent'] . "<br>";
     
     $headers = 'MIME-Version: 1.0' . "\r\n";
     $headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
