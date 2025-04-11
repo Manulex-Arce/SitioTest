@@ -517,6 +517,29 @@
                     input.classList.add('is-invalid');
                 } else {
                     input.classList.remove('is-invalid');
+                    // Validate age if this is the date of birth field
+                    if (input.id === 'dateOfBirth') {
+                        const dob = new Date(input.value);
+                        const today = new Date();
+                        const age = today.getFullYear() - dob.getFullYear();
+                        const monthDiff = today.getMonth() - dob.getMonth();
+                        
+                        // If birthday hasn't occurred this year, subtract a year
+                        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                            age--;
+                        }
+                        
+                        if (age < 18) {
+                            isValid = false;
+                            input.classList.add('is-invalid');
+                            if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('invalid-feedback')) {
+                                const feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                feedback.textContent = 'Vous devez avoir au moins 18 ans';
+                                input.parentNode.insertBefore(feedback, input.nextSibling);
+                            }
+                        }
+                    }
                 }
             });
 
@@ -583,6 +606,51 @@
                 return false;
             }
             return true;
+        });
+
+        // Add event listener for date of birth field
+        document.getElementById('dateOfBirth').addEventListener('change', function() {
+            this.classList.remove('is-invalid');
+            const feedback = this.nextElementSibling;
+            if (feedback && feedback.classList.contains('invalid-feedback')) {
+                feedback.remove();
+            }
+            
+            if (this.value) {
+                const dob = new Date(this.value);
+                const today = new Date();
+                const age = today.getFullYear() - dob.getFullYear();
+                const monthDiff = today.getMonth() - dob.getMonth();
+                
+                // If birthday hasn't occurred this year, subtract a year
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                    age--;
+                }
+                
+                if (age < 18) {
+                    this.classList.add('is-invalid');
+                    const feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    feedback.textContent = 'Vous devez avoir au moins 18 ans';
+                    this.parentNode.insertBefore(feedback, this.nextSibling);
+                }
+            }
+        });
+
+        // Add max date restriction to dateOfBirth input
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateOfBirth = document.getElementById('dateOfBirth');
+            const today = new Date();
+            const minDate = new Date();
+            const maxDate = new Date();
+            
+            // Set minimum date (must be at least 18 years old)
+            minDate.setFullYear(today.getFullYear() - 100); // Reasonable minimum age
+            // Set maximum date (must not be in the future and must be at least 18 years old)
+            maxDate.setFullYear(today.getFullYear() - 18);
+            
+            dateOfBirth.setAttribute('min', minDate.toISOString().split('T')[0]);
+            dateOfBirth.setAttribute('max', maxDate.toISOString().split('T')[0]);
         });
     </script>
 
