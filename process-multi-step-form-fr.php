@@ -40,7 +40,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // Email Configuration
 $from = "siteweb@expresscash.ca";
 $admin_email = "marce@publissoft.ca";
-//este es un comentario
+//este es un comentario nnuevo para todos los jovenes
+//este es un comentario nnuevo para todos los jovenes
+//este es un comentario nnuevo para todos los jovenes
+//este es un comentario nnuevo para todos los jovenes
 function sendEmailNotification($data) {
     global $admin_email, $from;
     
