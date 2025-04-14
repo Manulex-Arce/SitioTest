@@ -6,6 +6,28 @@ document.addEventListener('DOMContentLoaded', function() {
         pause: 'hover'
     });
 
+    // Mobile menu handling
+    const navbarToggler = document.querySelector('.navbar-toggler');
+    const navbarCollapse = document.querySelector('.navbar-collapse');
+    const bsCollapse = new bootstrap.Collapse(navbarCollapse, {
+        toggle: false
+    });
+
+    navbarToggler.addEventListener('click', function() {
+        if (navbarCollapse.classList.contains('show')) {
+            bsCollapse.hide();
+        } else {
+            bsCollapse.show();
+        }
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!navbarToggler.contains(event.target) && !navbarCollapse.contains(event.target)) {
+            bsCollapse.hide();
+        }
+    });
+
     // Smooth scrolling for navigation links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -16,6 +38,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     behavior: 'smooth',
                     block: 'start'
                 });
+                // Close mobile menu after clicking a link
+                bsCollapse.hide();
             }
         });
     });
